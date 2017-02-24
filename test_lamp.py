@@ -29,7 +29,7 @@ class TestLamp(unittest.TestCase):
         self.assertEqual(test_lamp.color, '#ffffff')
 
     def test_json(self):
-        print(self.lamp.get_json())
+        print(self.lamp._get_json())
 
     def test_change_stay(self):
         """ """

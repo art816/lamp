@@ -14,9 +14,11 @@ import json
 
 
 from parser_bytes import Parser
+from lamp import Lamp
 
 WS_CLIENTS = []
 stream = []
+lamp = Lamp()
 parser = Parser()
 
 class Main(tornado.web.RequestHandler):
