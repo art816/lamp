@@ -1,4 +1,4 @@
-
+import json
 
 class Lamp(object):
     """Lamp"""
@@ -19,3 +19,8 @@ class Lamp(object):
 
     def change_color(self, color):
         self.color = color
+
+    def get_json(self):
+        return json.dumps(self.__dict__)
+
+    

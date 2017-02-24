@@ -28,6 +28,9 @@ class TestLamp(unittest.TestCase):
         test_lamp.color = '#ffffff'
         self.assertEqual(test_lamp.color, '#ffffff')
 
+    def test_json(self):
+        print(self.lamp.get_json())
+
     def test_change_stay(self):
         """ """
         test_commands = [('on', ''), ('off', ''), ('change_color', '#01ff02')]
@@ -59,12 +62,22 @@ class TestParser(unittest.TestCase):
         test_masseges = [b'\x12\x00\x00',
                          b'\x13\x00\x00',
                          b'\x20\x00\x03\x01\xff\x02']
-        answer = [(b'\x12', 0, b''),
-                  (b'\x13', 0, b''),
+        answer = [(b'\x12', 0,),
+                  (b'\x13', 0,),
                   (b'\x20', 3, b'\x01\xff\x02')]
         for message_number in range(len(test_masseges)):
             parser = Parser()
-            parsed_code = parser.pars_code(test_masseges[message_number])
+            parsed_code = parser.pars_type_length(
+                test_masseges[message_number][:3])
+            print('code=', parsed_code, len(parsed_code))
+            if parsed_code[1]:
+                value = parser.pars_value(
+                    test_masseges[message_number][3:3+parsed_code[1]],
+                    parsed_code[1])
+                parsed_code = list(parsed_code)
+                parsed_code.append(value)
+                parsed_code = tuple(parsed_code)
+            print(parsed_code)
             self.assertEqual(parsed_code, answer[message_number])
 
     def test_value_to_name(self):
@@ -75,6 +88,14 @@ class TestParser(unittest.TestCase):
         answer = [('on', ''), ('off', ''), ('change_color', '#01ff02')]
         for message_number in range(len(test_masseges)):
             parser = Parser()
-            parsed_code = parser.pars_code(test_masseges[message_number])
+            parsed_code = parser.pars_type_length(
+                test_masseges[message_number][:3])
+            if parsed_code[1]:
+                value = parser.pars_value(
+                    test_masseges[message_number][3:3+parsed_code[1]],
+                    parsed_code[1])
+                parsed_code = list(parsed_code)
+                parsed_code.append(value)
+                parsed_code = tuple(parsed_code)
             command, arg = parser.value_to_name(parsed_code)
             self.assertEqual((command, arg), answer[message_number])
