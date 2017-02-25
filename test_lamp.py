@@ -63,16 +63,16 @@ class TestLamp(unittest.TestCase):
     def test_parser_code(self):
         """Parsing byte code."""
 
-        test_masseges = [b'\x12\x00\x00',
+        test_messages = [b'\x12\x00\x00',
                          b'\x13\x00\x00',
                          b'\x20\x00\x03\x01\xff\x02']
-        for message_number in range(len(test_masseges)):
+        for message_number in range(len(test_messages)):
             next_length = self.lamp.parser_code(
-                test_masseges[message_number][:3])
+                test_messages[message_number][:3])
             if next_length and self.lamp.get_value:
                 print('IF', next_length)
                 next_length = self.lamp.parser_code(
-                    test_masseges[message_number][3:3 + next_length])
+                    test_messages[message_number][3:3 + next_length])
                 self.assertEqual(self.lamp.color, '#01ff02')
                 self.assertEqual(self.lamp.status, 'off')
 
@@ -82,20 +82,20 @@ class TestParser(unittest.TestCase):
 
     def test_pars_code(self):
         """Parsing  code."""
-        test_masseges = [b'\x12\x00\x00',
+        test_messages = [b'\x12\x00\x00',
                          b'\x13\x00\x00',
                          b'\x20\x00\x03\x01\xff\x02']
         answer = [(b'\x12', 0,),
                   (b'\x13', 0,),
                   (b'\x20', 3, b'\x01\xff\x02')]
-        for message_number in range(len(test_masseges)):
+        for message_number in range(len(test_messages)):
             parser = Parser()
             parsed_code = parser.pars_type_length(
-                test_masseges[message_number][:3])
+                test_messages[message_number][:3])
             print('code=', parsed_code, len(parsed_code))
             if parsed_code[1]:
                 value = parser.pars_value(
-                    test_masseges[message_number][3:3+parsed_code[1]],
+                    test_messages[message_number][3:3+parsed_code[1]],
                     parsed_code[1])
                 parsed_code = list(parsed_code)
                 parsed_code.append(value)
@@ -105,17 +105,17 @@ class TestParser(unittest.TestCase):
 
     def test_value_to_name(self):
         """Get correct name."""
-        test_masseges = [b'\x12\x00\x00',
+        test_messages = [b'\x12\x00\x00',
                          b'\x13\x00\x00',
                          b'\x20\x00\x03\x01\xff\x02']
         answer = [('on', ''), ('off', ''), ('change_color', '#01ff02')]
-        for message_number in range(len(test_masseges)):
+        for message_number in range(len(test_messages)):
             parser = Parser()
             parsed_code = parser.pars_type_length(
-                test_masseges[message_number][:3])
+                test_messages[message_number][:3])
             if parsed_code[1]:
                 value = parser.pars_value(
-                    test_masseges[message_number][3:3+parsed_code[1]],
+                    test_messages[message_number][3:3+parsed_code[1]],
                     parsed_code[1])
                 parsed_code = list(parsed_code)
                 parsed_code.append(value)
