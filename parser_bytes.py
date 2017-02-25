@@ -21,7 +21,6 @@ class Parser(object):
     
     def pars_value(self, code, length):
         """Pars bytes code"""
-        
         if type(code) == bytes and len(code) == length:
             value = struct.unpack('!{}s'.format(length), code)[0]
             return value

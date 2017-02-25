@@ -1,7 +1,11 @@
-import unittest
+"""Unittest for lamp and parser_bytes."""
 
-from lamp import Lamp 
+import unittest
+import json
+
+from lamp import Lamp
 from parser_bytes import Parser
+
 
 class TestLamp(unittest.TestCase):
     """Test class Lamp."""
@@ -28,17 +32,22 @@ class TestLamp(unittest.TestCase):
         self.assertEqual(test_lamp.color, '#ffffff')
 
     def test_json(self):
-        print(self.lamp._get_json())
+        """Get json"""
+        test_lamp = Lamp()
+        self.assertEqual(
+            json.loads(test_lamp.get_json()),
+            json.loads('{"status": "off", "color": "#000000"}'))
 
-    def test_change_stay(self):
-        """ """
+    def test_change_status_color(self):
+        """Test change status and color"""
+
         test_commands = [('on', ''), ('off', ''), ('change_color', '#01ff02')]
         answer = [('on', '#ffffff'),
                   ('off', '#ffffff'),
                   ('off', '#01ff02')]
         test_lamp = Lamp()
         for message_number in range(len(test_commands)):
-            command, arg  = test_commands[message_number]
+            command, arg = test_commands[message_number]
             if command not in dir(test_lamp):
                 print('unknow command = ', command)
                 continue
@@ -52,28 +61,27 @@ class TestLamp(unittest.TestCase):
                 (test_lamp.status, test_lamp.color), answer[message_number])
 
     def test_parser_code(self):
-        """ """
+        """Parsing byte code."""
+
         test_masseges = [b'\x12\x00\x00',
                          b'\x13\x00\x00',
                          b'\x20\x00\x03\x01\xff\x02']
         for message_number in range(len(test_masseges)):
             next_length = self.lamp.parser_code(
                 test_masseges[message_number][:3])
-            if next_length and self.lamp._get_value:
+            if next_length and self.lamp.get_value:
                 print('IF', next_length)
                 next_length = self.lamp.parser_code(
                     test_masseges[message_number][3:3 + next_length])
                 self.assertEqual(self.lamp.color, '#01ff02')
                 self.assertEqual(self.lamp.status, 'off')
-            
-         
 
 
 class TestParser(unittest.TestCase):
-    """Test parser tcp massege"""
+    """Test parser tcp messsges"""
 
     def test_pars_code(self):
-        """ """
+        """Parsing  code."""
         test_masseges = [b'\x12\x00\x00',
                          b'\x13\x00\x00',
                          b'\x20\x00\x03\x01\xff\x02']
@@ -96,7 +104,7 @@ class TestParser(unittest.TestCase):
             self.assertEqual(parsed_code, answer[message_number])
 
     def test_value_to_name(self):
-        """ """
+        """Get correct name."""
         test_masseges = [b'\x12\x00\x00',
                          b'\x13\x00\x00',
                          b'\x20\x00\x03\x01\xff\x02']

@@ -21,21 +21,17 @@ document.addEventListener("DOMContentLoaded", function()
 	appendLog("Begin connection to server ...");
 
     var wsUri = "ws://localhost:8888/ws";
-//	var wsUri = "ws://10.1.1.1/ws/";
-//	var wsUri = "ws://172.16.0.190:8001/ws/";
 
     websocket = new WebSocket(wsUri);
     websocket.onopen = function(evt) { wsOpen(evt) };
-    websocket.onclose = function(evt) {};// wsClose(evt) };
+    websocket.onclose = function(evt) { appendLog("Close connection")};
     websocket.onmessage = function(evt) { wsMessage(evt) };
-    websocket.onerror = function(evt) {};// wsError(evt) };
+    websocket.onerror = function(evt) { appendLog("Error")};
 });
 
 function wsOpen(evt)
 {
 	appendLog("Opened websocket connection");
-    //websocket.send("HELLO");
-	websocket_state = 1;
 }
 
 function wsMessage(evt)

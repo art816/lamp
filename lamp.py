@@ -17,9 +17,9 @@ class Lamp(object):
         self.color = '#ffffff'
         self.commands_dict = cfg.commands_dict
         self.command = None
-        self._get_value = False
+        self.get_value = False
 
-    def _get_json(self):
+    def get_json(self):
         """Return json string {status: value, color: value}."""
         return json.dumps(
             {'status': self.status,
@@ -28,7 +28,7 @@ class Lamp(object):
     def parser_code(self, code):
         """Parsing bytes code."""
         #Check waiting value.
-        if self._get_value:
+        if self.get_value:
             self._pars_value(code)
             return 0
         else:
@@ -56,7 +56,7 @@ class Lamp(object):
             if length:
                 next_length = length
                 #Key that we waiting value.
-                self._get_value = True
+                self.get_value = True
         return next_length
 
     def _pars_value(self, code):
@@ -74,5 +74,5 @@ class Lamp(object):
                     *struct.unpack(cfg.unpack_string['rgb'], value))
             if arg:
                 setattr(self, self.command, arg)
-        self._get_value = False
+        self.get_value = False
 
