@@ -8,7 +8,7 @@ import os
 
 def handle_signal(sig, frame):
     IOLoop.instance().add_callback(IOLoop.instance().stop)
-
+    print("CLOSE")
 
 class EchoServer(TCPServer):
 
@@ -18,8 +18,13 @@ class EchoServer(TCPServer):
         while True:
             i += 1
             if self._stream:
-                self._stream.write(os.urandom(10))
-    #        time.sleep(3)
+                self._stream.write(b'\x20\x00\x03' + os.urandom(3))
+                time.sleep(0.3)
+                if i%2:
+                    self._stream.write(b'\x12\x00\x00')
+                else:
+                    self._stream.write(b'\x13\x00\x00')
+                    
         #self._read_line()
 
 
@@ -38,4 +43,6 @@ if __name__ == '__main__':
     server.listen(8000)
     IOLoop.instance().start()
     IOLoop.instance().close()
+    print("CLOSE2")
+
 
