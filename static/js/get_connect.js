@@ -1,9 +1,10 @@
 function appendLog(str)
 {
-	var elem = document.createElement("pre");
-	elem.textContent = str;
-    if(document.getElementById("log"))
-	document.getElementById("log").appendChild(elem);
+	var elem = $("<pre>");
+	elem.html(str);
+    if($("#command"))
+        $("#command pre:nth-child(n+3)").remove()
+	    $("#command").append(elem);
 }
 
 var websocket;
@@ -40,4 +41,6 @@ function wsOpen(evt)
 function wsMessage(evt)
 {
     appendLog(evt.data);
+    json = JSON.parse(evt.data);
+    $("#lamp").css('background', json.color);
 }

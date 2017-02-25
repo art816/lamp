@@ -11,7 +11,7 @@ from tornado.tcpclient import TCPClient
 import os
 #import websocket as ws_client
 import json
-
+import signal
 
 from parser_bytes import Parser
 from lamp import Lamp
@@ -20,6 +20,11 @@ WS_CLIENTS = []
 stream = []
 lamp = Lamp()
 parser = Parser()
+
+def handle_signal(sig, frame):
+    tornado.ioloop.IOLoop.instance().add_callback(
+        tornado.ioloop.IOLoop.instance().stop)
+    print("CLOSE")
 
 class Main(tornado.web.RequestHandler):
     def get(self):
@@ -45,40 +50,16 @@ class SocketHandler(websocket.WebSocketHandler):
 
 def out(data):
     data = data
-    if parser.parse_value:
-        parser.parse_value = False
-        value = parser.pars_value(data, len(data))
-        parser.value = value
-        parsed = parser.value_to_name((parser.parsed_type, parser.length, parser.value))
-        if parsed[0]:
-            print(parsed)
+    next_length = lamp.parser_code(data)
+    if lamp._get_value is False:
         for client in WS_CLIENTS:
-            client.write_message('data=' + data.decode('utf8'))
-        stream.read_bytes(3, callback=out)
-    else:
-        #print('len', len(data))
-        my_type, length = parser.pars_type_length(data)
-        parser.parsed_type = my_type
-        parser.length = length
-        parser.value = ''
-        #print('length=', length)
-        if length:
-            stream.read_bytes(length, callback=out)
-            parser.parse_value = True
-        else:
-            parsed = parser.value_to_name((parser.parsed_type, parser.length, parser.value))
-            if parsed[0]:
-                print(parsed)
-            for client in WS_CLIENTS:
-                client.write_message('data=' + data.decode('utf8'))
-            stream.read_bytes(3, callback=out)
-
+            client.write_message(lamp._get_json())
+    stream.read_bytes(next_length, callback=out)
 
 @gen.coroutine
 def connect_to_tcpserver():
     global stream
     stream = yield TCPClient().connect("localhost", 8000)
-    stream.write(b'\x01\x02\x03\x04\n')
     stream.read_bytes(3, callback=out)
 
 
@@ -96,12 +77,14 @@ def make_app():
 
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, handle_signal)
+    signal.signal(signal.SIGTERM, handle_signal)
     app = make_app()
     app.parser = Parser()
     connect_to_tcpserver()
     http_server = httpserver.HTTPServer(app)
     http_server.listen(8888)
     tornado.ioloop.IOLoop.instance().start()
-    connect_to_tcpserver.stream.close()
-    tornado.ioloop.IOLoop.current().stop()
+    tornado.ioloop.IOLoop.instance().stop()
+    tornado.ioloop.IOLoop.instance().close()
 
