@@ -122,3 +122,7 @@ class TestParser(unittest.TestCase):
                 parsed_code = tuple(parsed_code)
             command, arg = parser.value_to_name(parsed_code)
             self.assertEqual((command, arg), answer[message_number])
+
+
+if __name__ == '__main__':
+    unittest.main()
