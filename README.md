@@ -17,5 +17,5 @@ Starting http server 127.0.0.1:8888
 ##
 On 127.0.0.1:8888 lamp image (color rectangle). Get messages by websocket.
 
-# Now check onlu python3.4
+# Now check only python3.4
 
