@@ -19,18 +19,6 @@ class Lamp(object):
         self.command = None
         self._get_value = False
 
-    def on(self):
-        """Set status on."""
-        self.status = 'on'
-
-    def off(self):
-        """Set status off."""
-        self.status = 'off'
-
-    def change_color(self, color):
-        """Set color color."""
-        self.color = color
-
     def _get_json(self):
         """Return json string {status: value, color: value}."""
         return json.dumps(
