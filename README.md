@@ -6,11 +6,16 @@ Lamp
 
 python app.py
 
-Set host, port (default 127.0.0.1 9999)
+## 
+Waiting host, port in console (default 127.0.0.1 9999). 
+Try connect to TCPserver. If fail stop application.
+Read messages, default 3 bytes, if length !=0 read length bytes.
 
+##
 Starting http server 127.0.0.1:8888
 
-On 127.0.0.1:8888/ painted lamp. (color rectangle)
+##
+On 127.0.0.1:8888 lamp image (color rectangle). Get messages by websocket.
 
-
+# Now check onlu python3.4
 
