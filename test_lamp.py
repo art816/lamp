@@ -1,8 +1,7 @@
 import unittest
 
-
-from .lamp import Lamp 
-from .parser_bytes import Parser
+from lamp import Lamp 
+from parser_bytes import Parser
 
 class TestLamp(unittest.TestCase):
     """Test class Lamp."""
