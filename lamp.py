@@ -39,13 +39,18 @@ class Lamp(object):
            Set self.command if type in commands_dict.
            Return length next message. Default next_length = 3.
         """
-        next_length = 3
+        next_length = cfg.default_length_data_tcp
         if type(code) == bytes and len(code) == 3:
             #Unpack length, 2 bytes unsigned int.
-            length = struct.unpack(cfg.unpack_string['length'], code[1:3])[0]
+            #length = struct.unpack(cfg.unpack_string['length'], code[1:3])[0]
             #Unpack type, 1 bytes char.
-            parsed_type = struct.unpack(cfg.unpack_string['type'], code[0:1])[0]
+            #parsed_type = struct.unpack(cfg.unpack_string['type'], code[0:1])[0]
+            parsed_type, length = struct.unpack(
+                cfg.unpack_string['type'] + cfg.unpack_string['length'],
+                code)
             #Find type in commands_dict
+            #parsed_type = parsed_type[0]
+            #length = length[0]
             command_arg = self.commands_dict.get(parsed_type)
             if command_arg:
                 self.command = command_arg[0]

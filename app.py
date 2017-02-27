@@ -15,15 +15,12 @@ import config as cfg
 
 
 WS_CLIENTS = []
-stream = None
-lamp = Lamp()
 
 def handle_signal(sig, frame):
     """Stop work."""
     print(sig)
-    tornado.ioloop.IOLoop.instance().stop()
-    if stream:
-        stream.close()
+    io_loop = tornado.ioloop.IOLoop.instance()
+    io_loop.stop()
 
 class Main(tornado.web.RequestHandler):
     """Main page."""
@@ -34,23 +31,25 @@ class Main(tornado.web.RequestHandler):
         pass
 
 @gen.coroutine
-def parser_out(data):
+def parser_out(stream, data, lamp):
     """Parser out TCP. Use lamp.parser_code."""
     next_length = lamp.parser_code(data)
     if lamp.get_value is False:
         for client in WS_CLIENTS:
             client.write_message(lamp.get_json())
-    stream.read_bytes(next_length, callback=parser_out)
+    data = yield stream.read_bytes(next_length)
+    parser_out(stream, data, lamp)
 
 @gen.coroutine
 def connect_to_tcpserver(host, port):
-    global stream
+    lamp = Lamp()
     try: 
         stream = yield TCPClient().connect(host, port)
     except:
         handle_signal('Cannot connect to {} {}'.format(host, port), 0)
     else:
-        stream.read_bytes(3, callback=parser_out)
+        data = yield stream.read_bytes(cfg.default_length_data_tcp)
+        parser_out(stream, data, lamp)
 
 
 class SocketHandler(websocket.WebSocketHandler):
@@ -87,7 +86,9 @@ if __name__ == "__main__":
         host = cfg.tcp_host
     if not port:
         port = cfg.tcp_port
-    connect_to_tcpserver(host, port)
+    io_loop = tornado.ioloop.IOLoop.instance()
+    
+    io_loop.connect_to_tcpserver = connect_to_tcpserver(host, port)
     print("Connect to {} {}".format(host, port))
     signal.signal(signal.SIGINT, handle_signal)
     io_loop = tornado.ioloop.IOLoop.instance()
