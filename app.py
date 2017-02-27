@@ -19,7 +19,7 @@ WS_CLIENTS = []
 def handle_signal(sig, frame):
     """Stop work."""
     print(sig)
-    io_loop = tornado.ioloop.IOLoop.instance()
+    #io_loop = tornado.ioloop.IOLoop.instance()
     io_loop.stop()
 
 class Main(tornado.web.RequestHandler):
@@ -41,8 +41,15 @@ def parser_out(stream, data, lamp):
     parser_out(stream, data, lamp)
 
 @gen.coroutine
-def connect_to_tcpserver(host, port):
+def connect_to_tcpserver():
     lamp = Lamp()
+    host = input("Host: ")
+    port = input("Port: ")
+    if not host:
+        host = cfg.tcp_host
+    if not port:
+        port = cfg.tcp_port
+    print("Connect to {} {}".format(host, port))
     try: 
         stream = yield TCPClient().connect(host, port)
     except:
@@ -80,22 +87,12 @@ def make_app():
 
 
 if __name__ == "__main__":
-    host = input("Host: ")
-    port = input("Port: ")
-    if not host:
-        host = cfg.tcp_host
-    if not port:
-        port = cfg.tcp_port
-    io_loop = tornado.ioloop.IOLoop.instance()
-    
-    io_loop.connect_to_tcpserver = connect_to_tcpserver(host, port)
-    print("Connect to {} {}".format(host, port))
     signal.signal(signal.SIGINT, handle_signal)
     io_loop = tornado.ioloop.IOLoop.instance()
-    app = make_app()
-    io_loop.http_server = httpserver.HTTPServer(app)
+    io_loop.connect_to_tcpserver = connect_to_tcpserver()
+    io_loop.http_server = httpserver.HTTPServer(make_app())
     io_loop.http_server.listen(cfg.http_port)
     print("Start HTTP localhost {}".format(cfg.http_port))
     io_loop.start()
-    tornado.ioloop.IOLoop.instance().stop()
+    io_loop.stop()
 
