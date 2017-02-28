@@ -1,4 +1,6 @@
 """Test TCP server."""
+import sys
+print(sys.path)
 
 import signal
 import time
